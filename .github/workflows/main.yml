@@ -1,0 +1,35 @@
+name: Run AI Job Search
+
+on:
+  schedule:
+    # Runs every day at 02:30 UTC, which is 8:00 AM in India Standard Time (IST)
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install "torch" "sentence-transformers"
+        pip install "python-jobspy" --no-deps
+        pip install "pandas" "requests" "beautifulsoup4" "cloudscraper" "tldextract" "markdownify==0.13.1" "tls-client"
+        pip install "google-generativeai" "supabase" "python-dotenv"
+
+    - name: Run the job search script
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      run: python run_job_search.py
