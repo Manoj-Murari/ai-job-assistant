@@ -1,35 +1,50 @@
-name: Run AI Job Search
+# Name of our automated workflow
+name: Daily Job Search
 
+# --- TRIGGERS ---
+# This section defines WHEN the workflow runs
 on:
+  # 1. On a schedule (cron job)
+  # This runs at 00:00 UTC every day (around 5:30 AM India Standard Time)
   schedule:
-    # Runs every day at 02:30 UTC, which is 8:00 AM in India Standard Time (IST)
-    - cron: '30 2 * * *'
+    - cron: '0 0 * * *'
+  
+  # 2. On a manual trigger (workflow_dispatch)
+  # This allows us to run it from a button click later
   workflow_dispatch:
 
+# --- JOB DEFINITION ---
+# A workflow is made up of one or more jobs
 jobs:
+  # We have one job named "build"
   build:
+    # The type of machine to run the job on
     runs-on: ubuntu-latest
 
+    # The sequence of steps in our job
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # Step 1: Check out the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      # Step 2: Set up Python environment
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install "torch" "sentence-transformers"
-        pip install "python-jobspy" --no-deps
-        pip install "pandas" "requests" "beautifulsoup4" "cloudscraper" "tldextract" "markdownify==0.13.1" "tls-client"
-        pip install "google-generativeai" "supabase" "python-dotenv"
+      # Step 3: Install project dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      # Step 4: Run the Python script
+      - name: Run the job search script
+        # This is where we provide our secrets to the script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python ./run_job_search.py
 
-    - name: Run the job search script
-      env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      run: python run_job_search.py
