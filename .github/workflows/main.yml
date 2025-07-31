@@ -22,23 +22,27 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      # Step 3: Install project dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
       
-      # --- NEW DEBUGGING STEP ---
-      # Step 4: Verify what packages were actually installed
-      - name: Verify installed packages
-        run: pip list
-
-      # Step 5: Run the Python script
-      - name: Run the job search script
+      # Step 3: Install dependencies, verify, and run script
+      - name: Install, Verify, and Run
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python ./run_job_search.py
+        run: |
+          # Install dependencies from requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+          # Add a clear separator for debugging
+          echo "--- VERIFYING PACKAGES ---"
+          
+          # Verify that the packages were installed correctly
+          pip list
+          
+          # Add another separator
+          echo "--- RUNNING PYTHON SCRIPT ---"
+          
+          # Run the main script
+          python ./run_job_search.py
 
