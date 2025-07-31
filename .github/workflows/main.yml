@@ -2,26 +2,16 @@
 name: Daily Job Search
 
 # --- TRIGGERS ---
-# This section defines WHEN the workflow runs
 on:
-  # 1. On a schedule (cron job)
-  # This runs at 00:00 UTC every day (around 5:30 AM India Standard Time)
   schedule:
     - cron: '0 0 * * *'
-  
-  # 2. On a manual trigger (workflow_dispatch)
-  # This allows us to run it from a button click later
   workflow_dispatch:
 
 # --- JOB DEFINITION ---
-# A workflow is made up of one or more jobs
 jobs:
-  # We have one job named "build"
   build:
-    # The type of machine to run the job on
     runs-on: ubuntu-latest
 
-    # The sequence of steps in our job
     steps:
       # Step 1: Check out the repository code
       - name: Checkout repository
@@ -39,9 +29,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      # Step 4: Run the Python script
+      # --- NEW DEBUGGING STEP ---
+      # Step 4: Verify what packages were actually installed
+      - name: Verify installed packages
+        run: pip list
+
+      # Step 5: Run the Python script
       - name: Run the job search script
-        # This is where we provide our secrets to the script
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
