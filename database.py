@@ -1,6 +1,28 @@
 from config import supabase # Import the initialized Supabase client
 from datetime import datetime
 
+def get_all_searches():
+    """
+    Fetches all saved searches from Supabase and also joins the linked profile data
+    so we have the resume context for each search.
+    """
+    print("Fetching all saved job searches and their linked profiles...")
+    try:
+        # The key change is here: we are now selecting data from the linked 'profiles' table.
+        response = supabase.table('searches').select('*, profiles(id, profile_name, resume_context)').execute()
+        
+        if response.data:
+            print(f"Found {len(response.data)} searches to run.")
+            return response.data
+        else:
+            print("No searches found in database.")
+            return []
+    except Exception as e:
+        print(f"Error fetching searches: {e}")
+        return []
+
+# --- No changes to the other functions in this file ---
+
 def get_active_profile():
     """Fetches the most recently created user profile from Supabase."""
     print("Fetching active resume profile from database...")
@@ -16,21 +38,6 @@ def get_active_profile():
     except Exception as e:
         print(f"Error fetching profile: {e}")
         return None
-
-def get_all_searches():
-    """Fetches all saved search configurations from Supabase."""
-    print("Fetching all saved job searches from database...")
-    try:
-        response = supabase.table('searches').select('*').order('created_at', desc=True).execute()
-        if response.data:
-            print(f"Found {len(response.data)} searches to run.")
-            return response.data
-        else:
-            print("No searches found in database.")
-            return []
-    except Exception as e:
-        print(f"Error fetching searches: {e}")
-        return []
 
 def save_job_to_db(job_data: dict):
     """Saves a single processed job to the Supabase database, avoiding duplicates."""
@@ -51,4 +58,3 @@ def save_job_to_db(job_data: dict):
         print("  > Save successful.")
     except Exception as e:
         print(f"  > DB save error: {e}")
-
