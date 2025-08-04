@@ -31,8 +31,11 @@ def run_job_scrape(search_config: dict) -> list:
         jobs_list = jobs_df.to_dict('records')
         print(f"  - Found {len(jobs_list)} potential new jobs.")
         return jobs_list
+    # --- UPGRADE: More specific error handling ---
     except Exception as e:
-        print(f"  - An error occurred during scraping: {e}")
+        print(f"  - ❗️ An error occurred during scraping for search '{search_config['search_name']}'.")
+        print(f"  - ❗️ ERROR DETAILS: {e}")
+        # We return an empty list to ensure the application can continue with other searches.
         return []
 
 
@@ -77,8 +80,8 @@ def get_gemini_analysis(resume_context: str, job_description: str, experience_le
         print(f"  > Gemini analysis error: {e}")
         return None
 
-# No changes needed for the resume suggestions function
 def get_resume_suggestions(resume_context: str, job_description: str) -> dict | None:
+    # This function remains the same
     """Uses Gemini to generate specific resume tailoring suggestions."""
     print("  > Getting AI resume tailoring suggestions...")
     prompt = f"""

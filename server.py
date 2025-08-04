@@ -7,8 +7,13 @@ from run_job_search import main as run_job_search_script
 
 # --- FLASK APP SETUP ---
 app = Flask(__name__)
-# Allow requests from your frontend (which runs on port 5173)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+
+# --- FIX: Allow requests from multiple frontend ports ---
+# This tells the server it's okay to accept requests from your React app
+# running on either port 5173 or 5174.
+origins = ["http://localhost:5173", "http://localhost:5174"]
+CORS(app, resources={r"/run-search": {"origins": origins}})
+
 
 # A simple variable to prevent multiple searches from running at once
 is_search_running = False
@@ -46,4 +51,3 @@ def trigger_search():
 if __name__ == '__main__':
     # Run the Flask server on port 5001
     app.run(port=5001, debug=True)
-
