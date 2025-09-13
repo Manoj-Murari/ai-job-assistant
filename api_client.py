@@ -17,7 +17,7 @@ def run_job_scrape(search_config: dict) -> list:
         jobs_df: pd.DataFrame = scrape_jobs(
             site_name=["linkedin", "indeed"],
             search_term=search_config['search_term'],
-            country=search_config.get('country'),
+            country_indeed=search_config.get('country'),
             experience_level=experience_level,
             hours_old=hours_old,
             job_type='fulltime', 
